@@ -29,7 +29,7 @@ gcov_report: s21_string.a
 	./test
 	lcov -t "test" -o report.info -c -d .
 	genhtml -o report report.info
-	xdg-open ./report/index.html
+	#xdg-open ./report/index.html
 	rm -f *.gcno *.info *.gcda
 
 # $@: $^ - объект сборки: исходники

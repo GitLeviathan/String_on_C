@@ -29,5 +29,6 @@ Suite *test_strtok(void);
 //special
 Suite *test_to_upper(void);
 Suite *test_to_lower(void);
+Suite *test_trim(void);
 
 #endif  // SRC_TESTS_H
