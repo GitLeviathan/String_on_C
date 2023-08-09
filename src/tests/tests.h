@@ -30,5 +30,11 @@ Suite *test_strtok(void);
 Suite *test_to_upper(void);
 Suite *test_to_lower(void);
 Suite *test_trim(void);
+Suite *test_insert(void);
+
+//sprintf
+Suite *test_sprintf_c(void);
+Suite *test_sprintf_signed(void);
+Suite *test_sprintf_e(void);
 
 #endif  // SRC_TESTS_H

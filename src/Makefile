@@ -1,10 +1,11 @@
 CC = gcc -Wall -Werror -Wextra -std=c11 -pedantic
 LFLAGS = -lcheck -lpthread -lrt -lm -lsubunit -fprofile-arcs -ftest-coverage # флаги библиотек
-TESTS = ./tests/*.c ./tests/special/*.c ./tests/functional/*.c
+TESTS = ./tests/*.c ./tests/special/*.c ./tests/functional/*.c ./tests/input_output/*.c
 
 SOURCES_SPECIAL = $(wildcard special/s21_*.c)
 SOURCES_FUNCTIONAL = $(wildcard functional/s21_*.c)
-SOURCES = $(SOURCES_SPECIAL) $(SOURCES_FUNCTIONAL)
+SOURCES_INPUT_OUTPUT = $(wildcard input_output/s21_*.c)
+SOURCES = $(SOURCES_SPECIAL) $(SOURCES_FUNCTIONAL) $(SOURCES_INPUT_OUTPUT)
 OBJECTS = $(SOURCES:.c=.o)
 
 all: clean test gcov_report
