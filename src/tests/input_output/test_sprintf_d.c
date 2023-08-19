@@ -1,6 +1,5 @@
 #include "../tests.h"
 
-
 // One parameter signed
 START_TEST(sprintf_1_signed) {
   char str1[100] = "";
@@ -261,10 +260,8 @@ START_TEST(sprintf_18_signed) {
   short val4 = SHRT_MIN;
   int val5 = INT_MAX;
   int val6 = INT_MIN;
-  sprintf(str1, str3, val, val2, val3, val4, val5, val6);
-  s21_sprintf(str2, str3, val, val2, val3, val4, val5, val6);
-  /*ck_assert_int_eq(sprintf(str1, str3, val, val2, val3, val4, val5, val6),
-                   s21_sprintf(str2, str3, val, val2, val3, val4, val5, val6));*/
+  ck_assert_int_eq(sprintf(str1, str3, val, val2, val3, val4, val5, val6),
+                   s21_sprintf(str2, str3, val, val2, val3, val4, val5, val6));
   ck_assert_pstr_eq(str1, str2);
 }
 END_TEST
@@ -283,8 +280,8 @@ START_TEST(sprintf_19_signed) {
 }
 END_TEST
 
-Suite *test_sprintf_signed(void) {
-  Suite *s = suite_create("\033[45m-=S21_SPRINTF_SIGNED=-\033[0m");
+Suite *test_sprintf_d(void) {
+  Suite *s = suite_create("\033[45m-=S21_SPRINTF_D=-\033[0m");
   TCase *tc = tcase_create("sprintf_tc");
 
   tcase_add_test(tc, sprintf_1_signed);

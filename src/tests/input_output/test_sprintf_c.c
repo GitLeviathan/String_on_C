@@ -9,10 +9,8 @@ START_TEST(sprintf_1_c) {
   int c = 17;
   int d = 66;
   int e = 124;
-  sprintf(str1, str3, a, b, c, d, e);
-  s21_sprintf(str2, str3, a, b, c, d, e);
-  /*ck_assert_int_eq(sprintf(str1, str3, a, b, c, d, e),
-                   s21_sprintf(str2, str3, a, b, c, d, e));*/
+  ck_assert_int_eq(sprintf(str1, str3, a, b, c, d, e),
+                   s21_sprintf(str2, str3, a, b, c, d, e));
   ck_assert_pstr_eq(str1, str2);
 }
 END_TEST
