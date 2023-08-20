@@ -1,17 +1,11 @@
 #include "../s21_string.h"
 
 char *s21_strchr(const char *str, int c) {
-    char char_c = (char)c;
-    char* result = s21_NULL; 
-    while (*str != '\0') {
-        if (*str == char_c) {
-            result = (char *)str;
-            break;
-        }
+    // Проходим по строке до тех пор, пока не найдем искомый символ c
+    while (*str != '\0' && *str != c) {
         str++;
     }
-    if (c == '\0') result = (char *)str;
-
-    // Если символ c не найден, возвращаем NULL
-    return result;
+    // Если символ c найден, возвращаем указатель на его позицию в строке,
+    // иначе возвращаем NULL
+    return *str == c ? (char *)str : s21_NULL;
 }

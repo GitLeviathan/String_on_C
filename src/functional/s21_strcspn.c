@@ -2,17 +2,10 @@
 
 s21_size_t s21_strcspn(const char *str1, const char *str2) {
     s21_size_t count = 0;
-
-    while (str1[count] != '\0') {
-        s21_size_t index = 0;
-        while (str2[index] != '\0') {
-            if (str1[count] == str2[index]) {
-                return count;
-            }
-            index++;
-        }
+    // Проходим по строке str1 до тех пор, пока не встретим символ,
+    // который есть в str2, либо пока не дойдем до конца строки str1
+    while (str1[count] != '\0' && !s21_strchr(str2, str1[count])) {
         count++;
     }
-
     return count;
 }

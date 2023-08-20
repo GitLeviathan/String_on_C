@@ -1,5 +1,6 @@
 #ifndef _S21_STRING_H_
 #define _S21_STRING_H_
+#include <math.h>
 
 typedef long unsigned s21_size_t;
 typedef long unsigned int s21_size_t;

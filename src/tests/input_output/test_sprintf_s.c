@@ -270,7 +270,6 @@ Suite *test_sprintf_s(void) {
   tcase_add_test(tc, sprintf_8_string);
   tcase_add_test(tc, sprintf_9_string);
   //tcase_add_test(tc, sprintf_10_string);
-  //tcase_add_test(tc, sprintf_10_string);
   tcase_add_test(tc, sprintf_11_string);
   tcase_add_test(tc, sprintf_12_string);
   tcase_add_test(tc, sprintf_13_string);

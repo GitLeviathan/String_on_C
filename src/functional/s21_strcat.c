@@ -1,14 +1,9 @@
 #include "../s21_string.h"
 
 char *s21_strcat(char *dest, const char *src) {
-    int dest_len = s21_strlen(dest);
-    int i = 0;
-
-    for (; src[i]; i++) {
-        dest[dest_len + i] = src[i];
-    }
-
-    dest[dest_len + i] = '\0';
-
+    // Копируем содержимое строки src в конец строки dest,
+    // начиная с позиции, следующей за последним символом в dest,
+    // и включая завершающий нулевой символ
+    s21_memcpy(dest + s21_strlen(dest), src, s21_strlen(src) + 1);
     return dest;
 }
