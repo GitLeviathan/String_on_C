@@ -1,5 +1,5 @@
-#ifndef SRC_S21_ARTEM_EG_H_
-#define SRC_S21_ARTEM_EG_H_
+#ifndef SRC_S21_SPEC_EG_H_
+#define SRC_S21_SPEC_EG_H_
 
 #include "s21_specifiers.h"
 #include "sub_func.h"

@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #include "../../s21_string.h"
-#include "s21_artem_eg.h"
+#include "s21_spec_eg.h"
 #include "sub_func.h"
 
 int s21_specifier_o(char *buff, va_list args, Prototype prot);

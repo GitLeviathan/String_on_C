@@ -18,7 +18,7 @@ s21_string.a: $(OBJECTS)
 %.o: %.c
 	$(CC) -c $< -o $@
 
-test: $(TESTS) ./tests/*.h s21_string.h ./input_output/s21_flag_handler.h ./input_output/s21_sprintf.h ./input_output/specificators/s21_artem_eg.h ./input_output/specificators/s21_specifiers.h ./input_output/specificators/sub_func.h s21_string.a 
+test: $(TESTS) ./tests/*.h s21_string.h ./input_output/s21_flag_handler.h ./input_output/s21_sprintf.h ./input_output/specificators/s21_spec_eg.h ./input_output/specificators/s21_specifiers.h ./input_output/specificators/sub_func.h s21_string.a 
 	$(CC) -o $@ $^ $(LFLAGS)
 
 rebuild: clean all

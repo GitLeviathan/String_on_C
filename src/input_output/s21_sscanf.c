@@ -1,261 +1,433 @@
+#include <limits.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "s21_sscanf.h"
 
 int s21_sscanf(const char *str, const char *format, ...) {
-  char c;
-  int records = 0;
-  va_list args;
-  va_start(args, format);
-  int i = 0;
-  int j = 0;
+  int count = 0;               // this one counts successful reads of %
+  long all_symbols_count = 0;  // this one is for %n only
+  va_list valist;
+  va_start(valist, format);
 
-  while ((c = format[i]) != '\0') {
-    if (c != '%') {
-      if (s21_strchr(SPACES, c) != NULL) {
-        while (s21_strchr(SPACES, str[j]) != NULL) {
-          j++;
+  while (*format) {
+    if (*format++ == '%') {
+      long cycle_symbols_count = 0;
+      char keys[] = "csdieEfgGouxXpn%";  // if *format points to any of the
+                                         // keys, cycle for the current % ends
+      // every cycle this class is reset to default
+      struct Arguments Arglist = {0, -1, '\0', 0};
+      do {
+        switch (*format) {
+          case '*':
+            Arglist.asterisk = 1;
+            break;
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+            if (Arglist.width == -1)
+              Arglist.width = (*format - '0');
+            else
+              Arglist.width = Arglist.width * 10 + (*format - '0');
+            break;
+          case 'h':
+          case 'l':
+          case 'L':
+            Arglist.modifier = *format;
+            break;
+          case 'd':
+            cycle_symbols_count += case_d(valist, str, &Arglist);
+            break;
+          case 'c':
+            cycle_symbols_count += case_c(valist, str, &Arglist);
+            break;
+          case 's':
+            cycle_symbols_count += case_s(valist, str, &Arglist);
+            break;
+          case 'e':  // case_f is aware of scientific notations
+          case 'E':  // case_f is aware of scientific notations
+          case 'g':
+          case 'G':
+          case 'f':
+            cycle_symbols_count += case_f(valist, str, &Arglist, &count);
+            break;
+          case 'u':
+            cycle_symbols_count += case_u(valist, str, &Arglist);
+            break;
+          case 'o':
+            cycle_symbols_count += case_o(valist, str, &Arglist);
+            break;
+          case 'X':
+          case 'x':
+            cycle_symbols_count += case_x(valist, str, &Arglist);
+            break;
+          case 'i':
+            cycle_symbols_count += case_i(valist, str, &Arglist);
+            break;
+          case 'p':
+            cycle_symbols_count += case_p(valist, str, &Arglist);
+            break;
+          case 'n':
+            while (*str == ' ') {
+              str++;
+              all_symbols_count++;
+            }
+            Arglist.success = 1;
+            case_d_write_to_destination(valist, &Arglist, &all_symbols_count);
+            count--;
+            break;
+          case '%':
+            while (*str == ' ' || *str == '%') {
+              Arglist.success = 0;
+              all_symbols_count++;
+              str++;  // push through blank spaces
+            }
+            break;
         }
-      } else if (str[j] == format[i]) {
-        j++;
-      } else {
-        exit(EXIT_FAILURE);
-      };
-      i++;
-      continue;
-    };
-
-    if (format[i + 1] == '%') {
-      i++;
-      if (str[j] == '%') {
-        i++;
-        j++;
-        continue;
-      } else {
-        exit(EXIT_FAILURE);
-      }
-    };
-
-    Prototype prot = {'\0', 0, 0, 0, 0, 0, 0, 0, -1, -1, '\0'};
-    i = s21_read_format_scanf(&prot, format, i);
-    int space_counter_for_n = 0;
-    if (prot.spec != 'c') {
-      while (s21_strchr(SPACES, str[j]) != NULL) {
-        space_counter_for_n++;
-        j++;
-      }
-    };
-
-    records +=
-        s21_switch_scan_spec(&prot, format, str, &j, args, space_counter_for_n);
-
-    i++;
-  };
-  va_end(args);
-  return records;
-}
-
-int s21_switch_scan_spec(Prototype *prot, const char *format, const char *str,
-                         int *j, va_list args, int space_counter_for_n) {
-  int width_counter = 0;
-  int write_count = 0;
-  char buff_str[4096] = {'\0'};
-  format++;
-  if (prot->width_number > 0) {
-    width_counter = prot->width_number;
-  } else {
-    width_counter = INT_MAX;
-  }
-  switch (prot->spec) {
-    case 'd':
-      write_count +=
-          s21_scanf_spec_d(prot, str, buff_str, args, width_counter, j);
-      *j += s21_strlen(buff_str);
-      break;
-
-    case 'c':
-      write_count += s21_scanf_spec_c(prot, str, buff_str, args, j);
-      *j += s21_strlen(buff_str);
-      break;
-
-    case 's':
-      write_count +=
-          s21_scanf_spec_s(prot, str, args, buff_str, width_counter, j);
-      *j += s21_strlen(buff_str);
-
-      break;
-
-    case 'n':
-      s21_scanf_spec_n(args, j, space_counter_for_n);
-      break;
-  };
-  return write_count;
-}
-
-void s21_scanf_spec_n(va_list args, int *j, int space_counter_for_n) {
-  int *p_args = NULL;
-  p_args = va_arg(args, int *);
-  *p_args = *j - space_counter_for_n;
-}
-
-int s21_scanf_spec_s(Prototype *prot, const char *str, va_list args,
-                     char *buff_str, int width_counter, int *j) {
-  char *p_args = NULL;
-  int k = 0;
-  int ret = 1;
-  if (prot->width_star != '*') p_args = va_arg(args, char *);
-  while (k < width_counter && s21_strchr(SPACES, str[*j + k]) == NULL) {
-    buff_str[k] = str[*j + k];
-    if (prot->width_star != '*') *(p_args + k) = str[*j + k];
-    k++;
-  };
-  if (prot->width_star == '*') ret = 0;
-  return ret;
-}
-
-int s21_scanf_spec_c(Prototype *prot, const char *str, char *buff_str,
-                     va_list args, int *j) {
-  char *p_args = NULL;
-  int k = 0;
-
-  if (prot->width_star != '*') p_args = va_arg(args, char *);
-  if (prot->width_number <= 1) {
-    buff_str[k] = str[*j + k];
-    if (prot->width_star != '*') {
-      *p_args = str[*j];
-      k++;
+      } while (s21_strchr(keys, *format++) == s21_NULL);
+      if (Arglist.success == -1)
+        break;  // finishes the big loop if smth is not read
+      if (Arglist.asterisk) Arglist.success = 0;
+      count += Arglist.success;
+      str += cycle_symbols_count;  // push till a blank space or width
+      all_symbols_count += cycle_symbols_count;
     }
-  } else {
-    while (k < prot->width_number) {
-      buff_str[k] = str[*j + k];
-      if (prot->width_star != '*') {
-        *(p_args + k) = str[*j + k];
-      };
-      k++;
-    };
-    k = 1;
-  };
-  return k;
+  }
+  va_end(valist);
+  return count;
 }
 
-int s21_scanf_spec_d(Prototype *prot, const char *str, char *buff_str,
-                     va_list args, int width_counter, int *j) {
-  void *p_args = NULL;
-  int k = 0;
-  int write_count = 0;
-  long long int numb = 0;
-  if (prot->width_star != '*') p_args = va_arg(args, int *);
-  if (str[*j + k] == '-' || str[*j + k] == '+') {
-    buff_str[k] = str[*j + k];
-    k++;
-  };
-  while (k < width_counter && s21_strchr(SPACES, str[*j + k]) == NULL) {
-    if (isNumber(str[*j + k])) {
-      buff_str[k] = str[*j + k];
-    } else {
-      if (k == 0) return -1;
-      break;
-    };
-    k++;
+unsigned long long s21_sscanf_atoull(const char *str, struct Arguments *Arglist,
+                                     int *symbols_counter) {
+  unsigned long long res = 0;
+  // Process digits
+  while (*str >= '0' && *str <= '9' && Arglist->width--) {
+    res = res * 10 + (*str - '0');
+    str++;
+    (*symbols_counter)++;
+    Arglist->success = 1;
   }
 
-  numb = s21_atoi(buff_str);
-  if (prot->length == 'l' && numb > LONG_MAX) numb = LONG_MAX;
-  if (prot->width_star != '*') {
-    *(int *)p_args = numb;
-    write_count = 1;
-  };
-  return write_count;
+  return res;
 }
 
-long long int s21_atoi(char *str) {
-  long long int res = 0;
+long s21_sscanf_atoi(const char *str, struct Arguments *Arglist,
+                     int *symbols_counter) {
+                      
+  long res = 0;
+  int sign = 1;
+  
+  while (*str == ' ' || *str == '-' || *str == '+') {
+    if (*str == '-') {
+      sign = -1;
+      Arglist->width--;
+    } else if (*str == '+') {
+      Arglist->width--;
+    }
+    str++;
+    (*symbols_counter)++;
+  }
+
+  res = s21_sscanf_atoull(str, Arglist, symbols_counter);
+  return res * sign;
+}
+
+int case_p(va_list valist, const char *str, struct Arguments *Arglist) {
+  int symbols_counter = 0;
+
+  long decimal = case_x_read(str, Arglist, &symbols_counter);
+  if (Arglist->asterisk == 0) {
+    void **destination = va_arg(valist, void **);
+    *destination = (void *)(0x0 + decimal);
+  }
+
+  return symbols_counter;
+}
+
+// redirects according to the number format
+int case_i(va_list valist, const char *str, struct Arguments *Arglist) {
+  int symbols_counter = 0;
+  while (*str == ' ') {
+    str++;
+    symbols_counter++;
+  }
+  if (*str == '0') {
+    str++;
+    symbols_counter++;
+    if (*str == 'x') {  // in case of 0x111
+      symbols_counter += case_x(valist, str, Arglist);
+    } else {  // in case of 0111
+      symbols_counter += case_o(valist, str, Arglist);
+    }
+  } else if ((*str >= '0' && *str <= '9') || *str == '-' || *str == '+') {
+    symbols_counter += case_d(valist, str, Arglist);
+  }
+  return symbols_counter;
+}
+
+int case_x(va_list valist, const char *str, struct Arguments *Arglist) {
+  int symbols_counter = 0;
+  long decimal = case_x_read(str, Arglist, &symbols_counter);
+  if (Arglist->asterisk == 0)
+    case_d_write_to_destination(valist, Arglist, &decimal);
+  return symbols_counter;
+}
+
+long case_x_read(const char *str, struct Arguments *Arglist,
+                 int *symbols_counter) {
+  long decimal = 0;
+  int sign = 1;
+
+  while (*str == ' ' || *str == '-' || *str == '+' || *str == '0' ||
+         *str == 'x') {
+    if (*str == '-') sign = -1;
+    str++;
+    (*symbols_counter)++;
+  }
+  char hex_num[50] = {'\0'};
   int i = 0;
-  int sign = 0;
-  if (str[i] == 45) {
-    i++;
-    sign = 1;
-  } else if (str[i] == '+') {
-    i++;
-  };
-  for (int k = i; str[k] != '\0'; k++) {
-    res = res * 10;
-    res = res + str[k] - '0';
-  };
-  if (sign == 1) res = res * (-1);
-  return res;
-}
-
-int isNumber(char c) {
-  int res = 0;
-  if (c > 47 && c < 58) res = 1;
-  return res;
-}
-
-int s21_read_format_scanf(Prototype *prot, const char *format, int i) {
-  int this_is_width = 0;
-  int this_is_prec = 0;
-  i++;
-  while (format[i]) {
-    s21_check_flags_scanf(format, i, prot, &this_is_prec, &this_is_width);
-    s21_check_width_scanf(format, i, &this_is_width, prot);
-    if (format[i] == 'h') {
-      prot->length = format[i];
-    } else if (format[i] == 'l') {
-      prot->length = format[i];
-    } else if (format[i] == 'L') {
-      prot->length = format[i];
+  while ((*str && *str != ' ' && *str != '\n' && Arglist->width--) ||
+         ((hex_num[i] >= '0' && hex_num[i] <= '9') ||
+          (hex_num[i] >= 'a' && hex_num[i] <= 'f') ||
+          (hex_num[i] >= 'A' && hex_num[i] <= 'F'))) {
+    (*symbols_counter)++;
+    hex_num[i++] = *str++;
+  }
+  int len = s21_strlen(hex_num);  // has to read hex from left to right
+  int temp = 0;
+  for (i = 0; hex_num[i] != '\0'; i++) {
+    if (hex_num[i] >= '0' && hex_num[i] <= '9') {
+      temp = hex_num[i] - 48;
+      Arglist->success = 1;
+    } else if (hex_num[i] >= 'a' && hex_num[i] <= 'f') {
+      temp = hex_num[i] - 87;
+      Arglist->success = 1;
+    } else if (hex_num[i] >= 'A' && hex_num[i] <= 'F') {
+      temp = hex_num[i] - 55;
+      Arglist->success = 1;
     }
-    // Check spec
-    if (format[i] == 'c' || format[i] == 'd' || format[i] == 'i' ||
-        format[i] == 'o' || format[i] == 's' || format[i] == 'p' ||
-        format[i] == 'n' || format[i] == '%')
-      prot->spec = format[i];
-    if (prot->spec == format[i])
+    decimal += temp * pow(16, --len);
+  }
+  return decimal *= sign;
+}
+
+int case_o(va_list valist, const char *str, struct Arguments *Arglist) {
+  int symbols_counter = 0;
+  long octal = s21_sscanf_atoi(str, Arglist, &symbols_counter);
+  long decimal = 0;
+
+  while (*str == ' ' || *str == '-' || *str == '+' || *str == '0') str++;
+
+  int i = 0;
+  while (octal != 0 && Arglist->width--) {
+    decimal = decimal + (octal % 10) * pow(8, i++);
+    octal = octal / 10;
+  }
+
+  if (Arglist->asterisk == 0)
+    case_d_write_to_destination(valist, Arglist, &decimal);
+
+  return symbols_counter;
+}
+
+// case_u is similar to case_d but casts integers to unsigned along the way
+int case_u(va_list valist, const char *str, struct Arguments *Arglist) {
+  int symbols_counter = 0;
+  if (Arglist->asterisk == 0) {
+    if (Arglist->modifier == '\0') {
+      unsigned int *destination = va_arg(valist, unsigned int *);
+      long temp = s21_sscanf_atoi(str, Arglist, &symbols_counter);
+      *destination = (unsigned int)temp;
+    } else if (Arglist->modifier == 'h') {
+      unsigned short *destination = va_arg(valist, unsigned short *);
+      long temp = s21_sscanf_atoi(str, Arglist, &symbols_counter);
+      *destination = (unsigned short)temp;
+    } else if (Arglist->modifier == 'l') {
+      unsigned long *destination = va_arg(valist, unsigned long *);
+      long temp = s21_sscanf_atoull(str, Arglist, &symbols_counter);
+      *destination = (unsigned long)temp;
+    } else if (Arglist->modifier == 'L') {
+      unsigned long long *destination = va_arg(valist, unsigned long long *);
+      *destination = s21_sscanf_atoull(str, Arglist, &symbols_counter);
+    }
+  } else {
+    s21_sscanf_atoi(str, Arglist, &symbols_counter);
+  }
+  return symbols_counter;
+}
+
+// case_e is a part of case_f, when an str pointer hits an 'e' symbol
+int case_e(const char *str, long double *result, int *symbols_counter,
+           struct Arguments *Arglist) {
+  str++;  // skip 'e'
+  Arglist->width--;
+  int e_symbols_counter = 1;  // 'e' is counted already
+
+  // gets the number after "e+" or "e-", always positive
+  int n = s21_sscanf_atoi(str, Arglist, &e_symbols_counter);
+
+  if (*str == '+' || (*str >= '0' && *str <= '9')) {
+    while (n--) *result *= 10.0;
+  } else if (*str == '-') {
+    while (n++) *result /= 10.0;
+  }
+
+  *symbols_counter += e_symbols_counter;
+  return e_symbols_counter;
+}
+
+int case_f(va_list valist, const char *str, struct Arguments *Arglist,
+           int *total_count) {
+  int symbols_counter = 0;
+  long double left_from_dot_or_e =
+      s21_sscanf_atoi(str, Arglist, &symbols_counter);
+  long double result = left_from_dot_or_e;
+
+  int sign = 1;  // this part is needed in case "-0.1" is given. else the
+                 // minus sign would be lost
+  const char *str_temp = str;
+  while (*str_temp == ' ') str_temp++;
+  if (*str_temp == '-') sign = -1;
+
+  str += symbols_counter;  // pushes str pointer to a dot or 'e', or else to
+                           // specified width
+  switch (*str) {
+    case '.':
+      str++;
+      int symbols_to_right_of_dot = 0;  // the digits counter
+      long double right_from_dot =
+          s21_sscanf_atoi(str, Arglist, &symbols_to_right_of_dot);
+      symbols_counter +=
+          symbols_to_right_of_dot + 1;  // 1 stands for the dot itself
+
+      for (int n = symbols_to_right_of_dot; n > 0; n--) right_from_dot /= 10;
+
+      if (!left_from_dot_or_e && !right_from_dot && sign == -1)
+        result = -0.0;  // in case "-0.0" is given
+      else if (sign == -1)
+        result -= right_from_dot;  // case like "-0.1"
+      else
+        result += right_from_dot;
+
+      str += symbols_to_right_of_dot;  // pushes str pointer to end of number
+                                       // to later check for following 'e'
       break;
-    else
-      i++;
+    case 'e':
+    case 'E':
+      if (Arglist->width == 1) {
+        case_f_write_to_destination(valist, Arglist, &result);
+        Arglist->success = -1;
+        (*total_count)++;
+        break;
+      }
+      str += case_e(str, &result, &symbols_counter, Arglist);
+      break;
   }
-  return i;
+  if (*str == 'e' || *str == 'E')
+    case_e(str, &result, &symbols_counter, Arglist);
+
+  if (Arglist->asterisk == 0 && Arglist->success)
+    case_f_write_to_destination(valist, Arglist, &result);
+  return symbols_counter;
 }
 
-void s21_check_width_scanf(const char *format, int i, int *this_is_width,
-                           Prototype *prot) {
-  if (s21_check_number_scanf(format, i) == true && *this_is_width == 0) {
-    prot->width_number = s21_write_number_scanf(format, &i);
-    *this_is_width = 1;
-  } else if (prot->width_number == 0 && format[i] == '*' &&
-             *this_is_width == 0) {
-    prot->width_star = '*';
-    *this_is_width = 1;
+// a separate function so that case_f wouldn't be so huge
+void case_f_write_to_destination(va_list valist, struct Arguments *Arglist,
+                                 long double *result) {
+  if (Arglist->modifier == 'l') {
+    double *destination = va_arg(valist, double *);
+    *destination = (double)*result;
+  } else if (Arglist->modifier == 'L') {
+    long double *destination = va_arg(valist, long double *);
+    *destination = (long double)*result;
+  } else {
+    float *destination = va_arg(valist, float *);
+    *destination = (float)*result;
   }
 }
 
-void s21_check_flags_scanf(const char *format, int i, Prototype *prot,
-                           int *this_is_prec, int *this_is_width) {
-  if (format[i] == '+') {
-    prot->plus_flag = 1;
-  } else if (format[i] == '-') {
-    prot->minus_flag = 1;
-  } else if (format[i] == ' ') {
-    prot->space_flag = 1;
-  } else if (format[i] == '0' && *this_is_prec == 0 && *this_is_width == 0) {
-    prot->zero_flag = 1;
+int case_s(va_list valist, const char *str, struct Arguments *Arglist) {
+  int symbols_counter = 0;
+  while (*str == ' ' || *str == '\n') {  // pushes str pointer till characters
+    str++;
+    symbols_counter++;
+  }
+  if (Arglist->asterisk == 0) {
+    if (Arglist->modifier == 'l') {
+      wchar_t *destination = va_arg(valist, wchar_t *);
+      while (*str && *str != ' ' && *str != '\n' && Arglist->width--) {
+        symbols_counter++;
+        *destination++ = *str++;
+        Arglist->success = 1;
+      }
+      *destination = '\0';
+    } else {
+      char *destination = va_arg(valist, char *);
+      while (*str && *str != ' ' && *str != '\n' && Arglist->width--) {
+        symbols_counter++;
+        *destination++ = *str++;
+        Arglist->success = 1;
+      }
+      *destination = '\0';
+    }
+  } else {
+    while (*str && *str != ' ' && *str != '\n' && Arglist->width--) {
+      str++;
+      symbols_counter++;
+      Arglist->success = 1;
+    }
+  }
+
+  return symbols_counter;
+}
+
+int case_c(va_list valist, const char *str, struct Arguments *Arglist) {
+  int symbols_counter = 0;
+  if (Arglist->width > 0) {
+    symbols_counter += case_s(valist, str, Arglist);
+  } else if (Arglist->asterisk == 0) {
+    if (Arglist->modifier == 'l') {
+      wchar_t *destination = va_arg(valist, wchar_t *);
+      *destination = *str;
+    } else {
+      char *destination = va_arg(valist, char *);
+      *destination = *str;
+    }
+    symbols_counter++;
+    Arglist->success = 1;
+  }
+  return symbols_counter;
+}
+
+int case_d(va_list valist, const char *str, struct Arguments *Arglist) {
+  int symbols_counter = 0;
+  long result = s21_sscanf_atoi(str, Arglist, &symbols_counter);
+  if (Arglist->asterisk == 0)
+    case_d_write_to_destination(valist, Arglist, &result);
+  return symbols_counter;
+}
+
+void case_d_write_to_destination(va_list valist, struct Arguments *Arglist,
+                                 long int *result) {
+  if (Arglist->modifier == '\0') {
+    int *destination = va_arg(valist, int *);
+    *destination = (int)*result;
+  } else if (Arglist->modifier == 'h') {
+    short *destination = va_arg(valist, short *);
+    *destination = (short)*result;
+  } else if (Arglist->modifier == 'l') {
+    long *destination = va_arg(valist, long *);
+    *destination = (long)*result;
   }
 }
 
-bool s21_check_number_scanf(const char *format, int i) {
-  bool result = false;
-  if (format[i] >= '0' && format[i] <= '9') result = true;
-  return result;
-}
 
-int s21_write_number_scanf(const char *format, int *i) {
-  int width = 0;
-  width += format[*i] - '0';
-  *i += 1;
-  while (s21_check_number_scanf(format, *i) == true) {
-    width *= 10;
-    width += format[*i] - '0';
-    *i += 1;
-  }
-  return width;
-}

@@ -1,5 +1,4 @@
 #include "../tests.h"
-
 // One parameter string
 START_TEST(sprintf_1_string) {
   char str1[100] = "";
@@ -38,18 +37,6 @@ START_TEST(sprintf_3_string) {
   ck_assert_pstr_eq(str1, str2);
 }
 END_TEST
-
-// Different sizes WCHAR FOR LATER
-/*START_TEST(sprintf_4_string) {
-  char str1[100];
-  char str2[100];
-  char *str3 = "Test %ls Test2";
-  wchar_t *val = L"3wtf80";
-  ck_assert_int_eq(sprintf(str1, str3, val),
-                  s21_sprintf(str2, str3, val));
-  ck_assert_pstr_eq(str1, str2);
-}
-END_TEST*/
 
 // Different width
 START_TEST(sprintf_5_string) {
@@ -126,19 +113,6 @@ START_TEST(sprintf_9_string) {
 }
 END_TEST
 
-// Zero vals
-/*START_TEST(sprintf_10_string) {
-  char str1[200];
-  char str2[200];
-  char *str3 = "%s Test %3.s Test %5.7s TEST %10s %#s %-s %+s %.s % .s";
-  char *val = NULL;
-  ck_assert_int_eq(
-      sprintf(str1, str3, val, val, val, val, val, val, val, val, val),
-      s21_sprintf(str2, str3, val, val, val, val, val, val, val, val, val));
-  ck_assert_pstr_eq(str1, str2);
-}
-END_TEST*/
-
 // Spaces
 START_TEST(sprintf_11_string) {
   char str1[200];
@@ -187,24 +161,6 @@ START_TEST(sprintf_13_string) {
 }
 END_TEST
 
-// ZERO flag
-//str1 == "WHAT IS THIS Test    idx Test  PPAP TEST I don't Oof ", 
-//str2 == "WHAT IS THIS Test 000idx Test 0PPAP TEST I don't Oof "
-/*START_TEST(sprintf_14_string) {
-  char str1[200];
-  char str2[200];
-  char *str3 = "%0s Test %06s Test %05.7s TEST %0.7s Oof %0.s";
-  char *val = "WHAT IS THIS";
-  char *val2 = "idx";
-  char *val3 = "PPAP";
-  char *val4 = "I don't";
-  char *val5 = "What is lovin'?!";
-  ck_assert_int_eq(sprintf(str1, str3, val, val2, val3, val4, val5),
-                   s21_sprintf(str2, str3, val, val2, val3, val4, val5));
-  ck_assert_pstr_eq(str1, str2);
-}
-END_TEST*/
-
 // Asterisk
 START_TEST(sprintf_15_string) {
   char str1[200];
@@ -240,43 +196,24 @@ START_TEST(sprintf_16_string) {
   ck_assert_pstr_eq(str1, str2);
 }
 END_TEST
-//str1 == "                                (null)     (null)        ", 
-//str2 == "                               (nu (null)  (n (null)     (nu"
-/*START_TEST(sprintf_17_string) {
-  char str1[1024];
-  char str2[1024];
-  char *str3 =
-      "%0.0s %1.0s %2.0s %3.0s %5.0s %6.0s %7.0s %0.3s %0.7s %3.2s %3.7s %7.3s";
-  char *val = NULL;
-  s21_sprintf(str2, str3, val, val, val, val, val, val, val, val, val, val, val,
-              val);
-  sprintf(str1, str3, val, val, val, val, val, val, val, val, val, val, val,
-          val);
-  ck_assert_str_eq(str1, str2);
-}
-END_TEST*/
 
 Suite *test_sprintf_s(void) {
-  Suite *s = suite_create("\033[45m-=S21_SPRINTF_S=-\033[0m");
+  Suite *s = suite_create("\033[45m==S21_SPRINTF_STRING==\033[0m");
   TCase *tc = tcase_create("sprintf_tc");
 
   tcase_add_test(tc, sprintf_1_string);
   tcase_add_test(tc, sprintf_2_string);
   tcase_add_test(tc, sprintf_3_string);
-  //tcase_add_test(tc, sprintf_4_string);  // WCHAR
   tcase_add_test(tc, sprintf_5_string);
   tcase_add_test(tc, sprintf_6_string);
   tcase_add_test(tc, sprintf_7_string);
   tcase_add_test(tc, sprintf_8_string);
   tcase_add_test(tc, sprintf_9_string);
-  //tcase_add_test(tc, sprintf_10_string);
   tcase_add_test(tc, sprintf_11_string);
   tcase_add_test(tc, sprintf_12_string);
   tcase_add_test(tc, sprintf_13_string);
-  //tcase_add_test(tc, sprintf_14_string);
   tcase_add_test(tc, sprintf_15_string);
   tcase_add_test(tc, sprintf_16_string);
-  //tcase_add_test(tc, sprintf_17_string);
 
   suite_add_tcase(s, tc);
   return s;

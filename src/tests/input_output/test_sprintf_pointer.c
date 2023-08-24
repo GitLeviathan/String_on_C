@@ -114,68 +114,8 @@ START_TEST(sprintf_8_pointer) {
 }
 END_TEST
 
-// Pluses
-/*START_TEST(sprintf_9_pointer) {
-  char str1[200];
-  char str2[200];
-  char* str3 = "%+p Test %+3.p Test %+5.7p TEST %+10p";
-  char* val = "3015";
-  char* val2 = "712";
-  char* val3 = "99";
-  char* val4 = "2939";
-  ck_assert_int_eq(sprintf(str1, str3, val, val2, val3, val4),
-                   s21_sprintf(str2, str3, val, val2, val3, val4));
-  ck_assert_pstr_eq(str1, str2);
-}
-END_TEST
-
-// Zero vals
-START_TEST(sprintf_10_pointer) {
-  char str1[200];
-  char str2[200];
-  char* str3 = "%p Test %3.p Test %5.7p TEST %10p %#p %-p %+p %.p % .p";
-  char* val = 0;
-  ck_assert_int_eq(
-      sprintf(str1, str3, val, val, val, val, val, val, val, val, val),
-      s21_sprintf(str2, str3, val, val, val, val, val, val, val, val, val));
-  ck_assert_pstr_eq(str1, str2);
-}
-END_TEST
-
-// Spaces
-START_TEST(sprintf_11_pointer) {
-  char str1[200];
-  char str2[200];
-  char* str3 = "% p Test % 3.p Test % 5.7p TEST % 10p GOD %.p";
-  char* val = "32";
-  char* val2 = "8899";
-  char* val3 = "91918";
-  char* val4 = "32311";
-  char* val5 = "23";
-  ck_assert_int_eq(sprintf(str1, str3, val, val2, val3, val4, val5),
-                   s21_sprintf(str2, str3, val, val2, val3, val4, val5));
-  ck_assert_pstr_eq(str1, str2);
-}
-END_TEST
-
-// Plus
-START_TEST(sprintf_12_pointer) {
-  char str1[200];
-  char str2[200];
-  char* str3 = "%+p Test %+3.p Test %+5.7p TEST %+10p GOD %+.p";
-  char* val = "32";
-  char* val2 = "8899";
-  char* val3 = "91918";
-  char* val4 = "32311";
-  char* val5 = "3261";
-  ck_assert_int_eq(sprintf(str1, str3, val, val2, val3, val4, val5),
-                   s21_sprintf(str2, str3, val, val2, val3, val4, val5));
-  ck_assert_pstr_eq(str1, str2);
-}
-END_TEST*/
-
 // Hash
-START_TEST(sprintf_13_pointer) {
+START_TEST(sprintf_9_pointer) {
   char str1[200];
   char str2[200];
   char* str3 = "%#p Test %#3p Test %#5.7p TEST %#.7p Oof %#.p";
@@ -191,7 +131,7 @@ START_TEST(sprintf_13_pointer) {
 END_TEST
 
 // ZERO flag
-START_TEST(sprintf_14_pointer) {
+START_TEST(sprintf_10_pointer) {
   char str1[200];
   char str2[200];
   char* str3 = "%0p Test %06p Test %05.7p TEST %0.7p Oof %0.p";
@@ -207,7 +147,7 @@ START_TEST(sprintf_14_pointer) {
 END_TEST
 
 // Asterisk
-START_TEST(sprintf_15_pointer) {
+START_TEST(sprintf_11_pointer) {
   char str1[200];
   char str2[200];
   char* str3 = "%*p Test %-*p Test %*.*p TEST %.*p Lololol %.*p";
@@ -231,7 +171,7 @@ START_TEST(sprintf_15_pointer) {
 END_TEST
 
 Suite* test_sprintf_pointer(void) {
-  Suite* s = suite_create("\033[45m-=S21_SPRINTF_POINTER=-\033[0m");
+  Suite* s = suite_create("\033[45m==S21_SPRINTF_POINTER==\033[0m");
   TCase* tc = tcase_create("sprintf_tc");
 
   tcase_add_test(tc, sprintf_1_pointer);
@@ -242,13 +182,9 @@ Suite* test_sprintf_pointer(void) {
   tcase_add_test(tc, sprintf_6_pointer);
   tcase_add_test(tc, sprintf_7_pointer);
   tcase_add_test(tc, sprintf_8_pointer);
-  /*tcase_add_test(tc, sprintf_9_pointer);
+  tcase_add_test(tc, sprintf_9_pointer);
   tcase_add_test(tc, sprintf_10_pointer);
   tcase_add_test(tc, sprintf_11_pointer);
-  tcase_add_test(tc, sprintf_12_pointer);*/
-  tcase_add_test(tc, sprintf_13_pointer);
-  tcase_add_test(tc, sprintf_14_pointer);
-  tcase_add_test(tc, sprintf_15_pointer);
 
   suite_add_tcase(s, tc);
   return s;

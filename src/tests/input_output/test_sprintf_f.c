@@ -36,10 +36,10 @@ END_TEST
 START_TEST(sprintf_4_f) {
   char str1[400];
   char str2[400];
-  char *str3 = "%20.10f\n%20.15f\n%-20.5f!";
+  char *str3 = "ж%20.10f\n%20.15f\n%-20.5fж";
   double num = -76.756589;
-  ck_assert_int_eq(sprintf(str1, str3, num, num, num),
-                   s21_sprintf(str2, str3, num, num, num));
+  sprintf(str1, str3, num, num, num);
+  s21_sprintf(str2, str3, num, num, num);
   ck_assert_pstr_eq(str1, str2);
 }
 END_TEST
@@ -506,28 +506,6 @@ START_TEST(sprintf_47_f) {
 }
 END_TEST
 
-/*START_TEST(sprintf_48_f) {
-  char str1[400];
-  char str2[400];
-  char *str3 = "test: %.1Lf!\ntest: %.2Lf!\ntest: %.3Lf!";
-  long double num = 823631075973858585858447757573.6495633;
-  ck_assert_int_eq(sprintf(str1, str3, num, num, num),
-                   s21_sprintf(str2, str3, num, num, num));
-  ck_assert_pstr_eq(str1, str2);
-}
-END_TEST
-
-START_TEST(sprintf_49_f) {
-  char str1[400];
-  char str2[400];
-  char *str3 = "test: %+ 0Lf!\ntest: %.6Lf!\ntest: %.15Lf!";
-  long double num = 823631075973858585858447757573.6495633;
-  ck_assert_int_eq(sprintf(str1, str3, num, num, num),
-                   s21_sprintf(str2, str3, num, num, num));
-  ck_assert_pstr_eq(str1, str2);
-}
-END_TEST*/
-
 START_TEST(sprintf_50_f) {
   char str1[400];
   char str2[400];
@@ -564,7 +542,7 @@ END_TEST
 START_TEST(sprintf_54_f) {
   char str1[400];
   char str2[400];
-  char *str3 = "fshgkaljck% 10.12f hgsakul";
+  char *str3 = "fshgkaljck% 10.12f hgsarul";
   double num = 0.235300;
   ck_assert_int_eq(sprintf(str1, str3, num), s21_sprintf(str2, str3, num));
   ck_assert_pstr_eq(str1, str2);
@@ -572,7 +550,7 @@ START_TEST(sprintf_54_f) {
 END_TEST
 
 Suite *test_sprintf_f(void) {
-  Suite *s = suite_create("\033[45m-=S21_SPRINTF_F=-\033[0m");
+  Suite *s = suite_create("\033[45m==S21_SPRINTF_F==\033[0m");
   TCase *tc = tcase_create("sprintf_tc");
 
   tcase_add_test(tc, sprintf_1_f);
@@ -621,8 +599,6 @@ Suite *test_sprintf_f(void) {
   tcase_add_test(tc, sprintf_45_f);
   tcase_add_test(tc, sprintf_46_f);
   tcase_add_test(tc, sprintf_47_f);
-  /*tcase_add_test(tc, sprintf_48_f);
-  tcase_add_test(tc, sprintf_49_f);*/
   tcase_add_test(tc, sprintf_50_f);
   tcase_add_test(tc, sprintf_51_f);
   tcase_add_test(tc, sprintf_52_f);

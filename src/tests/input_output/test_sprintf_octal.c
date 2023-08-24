@@ -263,8 +263,28 @@ START_TEST(sprintf_18_octal) {
 }
 END_TEST
 
+START_TEST(sprintf_19_octal) {
+  char str1[200];
+  char str2[200];
+  char *str3 = "fdsdsds %0.0o";
+  int val = 0;
+  ck_assert_int_eq(sprintf(str1, str3, val), s21_sprintf(str2, str3, val));
+  ck_assert_pstr_eq(str1, str2);
+}
+END_TEST
+
+START_TEST(sprintf_20_octal) {
+  char str1[200];
+  char str2[200];
+  char *str3 = "fdsdsds %0.0lo";
+  int val = 0;
+  ck_assert_int_eq(sprintf(str1, str3, val), s21_sprintf(str2, str3, val));
+  ck_assert_pstr_eq(str1, str2);
+}
+END_TEST
+
 Suite *test_sprintf_octal(void) {
-  Suite *s = suite_create("\033[45m-=S21_SPRINTF_OCTAL=-\033[0m");
+  Suite *s = suite_create("\033[45m==S21_SPRINTF_OCTAL==\033[0m");
   TCase *tc = tcase_create("sprintf_tc");
 
   tcase_add_test(tc, sprintf_1_octal);
@@ -285,7 +305,8 @@ Suite *test_sprintf_octal(void) {
   tcase_add_test(tc, sprintf_16_octal);
   tcase_add_test(tc, sprintf_17_octal);
   tcase_add_test(tc, sprintf_18_octal);
-
+  tcase_add_test(tc, sprintf_19_octal);
+  tcase_add_test(tc, sprintf_20_octal);
   suite_add_tcase(s, tc);
   return s;
 }

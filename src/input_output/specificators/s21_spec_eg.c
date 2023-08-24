@@ -1,5 +1,5 @@
 #include "../../s21_string.h"
-#include "s21_artem_eg.h"
+#include "s21_spec_eg.h"
 
 int s21_double_to_str(long double num, char *str_double, int num_i) {
   while (num > 0) {

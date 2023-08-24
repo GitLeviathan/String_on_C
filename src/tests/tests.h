@@ -50,12 +50,13 @@ Suite *test_sprintf_pointer(void);
 
 // sscanf
 Suite *test_sscanf_c(void);
+Suite *test_sscanf_u(void);
 Suite *test_sscanf_d(void);
-Suite *test_sscanf_empty(void);
+Suite *test_sscanf_p(void);
 Suite *test_sscanf_i(void);
 Suite *test_sscanf_n(void);
 Suite *test_sscanf_o(void);
-Suite *test_sscanf_p(void);
+Suite *test_sscanf_percent(void);
 Suite *test_sscanf_real(void);
 Suite *test_sscanf_x(void);
 
