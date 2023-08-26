@@ -9,7 +9,7 @@ START_TEST(sscanf_spec_hho) {
 
   int16_t res1 = s21_sscanf(str, format, &d1, &q1, &z1);
   int16_t res2 = sscanf(str, format, &d2, &q2, &z2);
-  
+
   ck_assert_uint_eq(d1, d2);
   ck_assert_uint_eq(q1, q2);
   ck_assert_uint_eq(z1, z2);

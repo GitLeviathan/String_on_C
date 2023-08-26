@@ -9,7 +9,6 @@ START_TEST(sscanf_spec_n_1) {
   int16_t res2 = sscanf(str, format, &n2);
   ck_assert_int_eq(res1, res2);
   ck_assert_int_eq(n1, n2);
-
 }
 END_TEST
 

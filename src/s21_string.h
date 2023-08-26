@@ -1,13 +1,12 @@
 #ifndef _S21_STRING_H_
 #define _S21_STRING_H_
-#include <math.h>
 
 typedef long unsigned s21_size_t;
 typedef long unsigned int s21_size_t;
 
 #define s21_NULL ((void *)0)
 
-// функции копирования 
+// функции копирования
 void *s21_memcpy(void *dest, const void *src, s21_size_t n);
 void *s21_memset(void *str, int c, s21_size_t n);
 void *s21_memmove(void *dest, const void *src, s21_size_t n);
@@ -35,12 +34,11 @@ char *s21_strcat(char *dest, const char *src);
 char *s21_strerror(int errnum);
 char *s21_strtok(char *str, const char *delim);
 
-// функции - sprintf, sscanf 
+// функции - sprintf, sscanf
 int s21_sprintf(char *str, const char *format, ...);
 int s21_sscanf(const char *str, const char *format, ...);
 
-
-//дополнительные функции не входящие в стандартную библиотеку
+// дополнительные функции не входящие в стандартную библиотеку
 void *s21_to_upper(const char *str);
 void *s21_to_lower(const char *str);
 void *s21_insert(const char *src, const char *str, s21_size_t start_index);
@@ -48,4 +46,4 @@ void *s21_trim(const char *src, const char *trim_chars);
 // Функция для преобразования строки в верхний/нижний регистр
 void *s21_change_case_str(const char *str, int to_upper);
 
-#endif // _S21_STRING_H_
+#endif  // _S21_STRING_H_
